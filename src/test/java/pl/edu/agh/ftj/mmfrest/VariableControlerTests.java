@@ -25,6 +25,7 @@ public class VariableControlerTests {
     private WebApplicationContext context;
 
     private MockMvc mockMvc;
+    private final String BASE_URL = "/variables";
 
     @Before
     public void setup() {
@@ -35,13 +36,23 @@ public class VariableControlerTests {
 
     @Test
     public void testGetVariablesEmptyList() throws Exception {
-        String url = new StringBuilder()
-                .append("/variables").toString();
-        mockMvc.perform(get(url))
+        mockMvc.perform(get(BASE_URL))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
         .andExpect(content().json("[]", true))
         .andDo(print())
         .andReturn();
+    }
+
+    @Test
+    public void testGetNonExistingVariable() throws Exception {
+        String url = new StringBuilder()
+                .append(BASE_URL)
+                .append("/x_not_there")
+                .toString();
+        mockMvc.perform(get(url))
+                .andExpect(status().isNotFound())
+                .andDo(print())
+                .andReturn();
     }
 }

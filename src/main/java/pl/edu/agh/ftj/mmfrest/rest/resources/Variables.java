@@ -1,6 +1,8 @@
 package pl.edu.agh.ftj.mmfrest.rest.resources;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.*;
 import pl.edu.agh.ftj.mmfrest.dto.Variable;
@@ -18,8 +20,10 @@ public class Variables {
     private static Map<String, Variable> variablesMap = new HashMap<>();
 
     @RequestMapping(value = "/{name}", method = RequestMethod.GET)
-    public Variable retirieveVariable(@PathVariable(value = "name") String variableName ) {
-        return (Variables.variablesMap.get(variableName));
+    public ResponseEntity<?> retirieveVariable(@PathVariable(value = "name") String variableName ) {
+        checkVariableName(variableName);
+        Variable variable = Variables.variablesMap.get(variableName);
+        return (variable != null ? ResponseEntity.ok(variable) : ResponseEntity.notFound().build());
     }
 
     @RequestMapping(value = "", method = RequestMethod.GET)
