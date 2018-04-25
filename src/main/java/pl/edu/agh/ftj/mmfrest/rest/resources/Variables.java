@@ -66,15 +66,39 @@ public class Variables {
 
     @RequestMapping(value = "/{name}", method = RequestMethod.DELETE)
     public Variable deleteVariable(@PathVariable(value = "name") String variableName ) {
-        if ((variableName == null) || variableName.isEmpty()) {
-            throw new HttpMessageNotReadableException("Variable name not specified");
-        }
+        checkVariableName(variableName);
         return Variables.variablesMap.remove(variableName);
     }
 
     @RequestMapping(value = "", method = RequestMethod.DELETE)
-    public void deleteVariable() {
+    public void deleteAllVariables() {
         Variables.variablesMap.clear();
+    }
+
+    @RequestMapping(value = "/{name}/minValue", method = RequestMethod.DELETE)
+    public Variable deleteMinValue(@PathVariable(value = "name") String variableName ) {
+        checkVariableName(variableName);
+        Variable variable = getVariable(variableName);
+        try {
+            variable.removeMinValue();
+        } catch (IllegalAccessException e) {
+            throw new HttpMessageNotReadableException(e.getMessage());
+        }
+        Variables.variablesMap.put(variableName, variable);
+        return variable;
+    }
+
+    @RequestMapping(value = "/{name}/maxValue", method = RequestMethod.DELETE)
+    public Variable deleteMaxValue(@PathVariable(value = "name") String variableName ) {
+        checkVariableName(variableName);
+        Variable variable = getVariable(variableName);
+        try {
+            variable.removeMaxValue();
+        } catch (IllegalAccessException e) {
+            throw new HttpMessageNotReadableException(e.getMessage());
+        }
+        Variables.variablesMap.put(variableName, variable);
+        return variable;
     }
 
     @RequestMapping(value = "/{name}", method = RequestMethod.PATCH,
@@ -82,7 +106,7 @@ public class Variables {
     public Variable updateVariable(
             @PathVariable(value = "name") String variableName,
             @RequestBody VariablePatchData newValues) {
-
+        checkVariableName(variableName);
         Variable variable = getVariable(variableName);
 
         try {
@@ -124,14 +148,17 @@ public class Variables {
     }
 
     private Variable getVariable(String variableName) throws HttpMessageNotReadableException {
-        if ((variableName == null) || variableName.isEmpty()) {
-            throw new HttpMessageNotReadableException("Variable name not specified");
-        }
-
+        checkVariableName(variableName);
         Variable variable = Variables.variablesMap.get(variableName);
         if (variable == null) {
             throw new HttpMessageNotReadableException("Variable: " +  variableName + " does not exist");
         }
         return variable;
+    }
+
+    private void checkVariableName(String variableName) throws HttpMessageNotReadableException{
+        if ((variableName == null) || variableName.isEmpty()) {
+            throw new HttpMessageNotReadableException("Variable name not specified");
+        }
     }
 }

@@ -44,9 +44,7 @@ public class Variable {
     }
 
     public void setValue(float value) throws IllegalAccessException {
-        if (isFrozen == true) {
-            throw new IllegalAccessException("Variable " + name + " is frozen and cannot be modified");
-        }
+        frozenCheck();
         this.value = value;
     }
 
@@ -61,8 +59,14 @@ public class Variable {
     }
 
     public void setMinValue(Float minValue) throws IllegalAccessException{
+        frozenCheck();
         validateMinValue(minValue);
         this.minValue = minValue;
+    }
+
+    public void removeMinValue() throws IllegalAccessException{
+        frozenCheck();
+        this.minValue = null;
     }
 
     public Float getMaxValue() {
@@ -70,8 +74,14 @@ public class Variable {
     }
 
     public void setMaxValue(Float maxValue) throws IllegalAccessException{
+        frozenCheck();
         validateMaxValue(maxValue);
         this.maxValue = maxValue;
+    }
+
+    public void removeMaxValue() throws IllegalAccessException {
+        frozenCheck();
+        this.maxValue = null;
     }
 
     private void validateMinValue(Float minValue) throws IllegalAccessException {
@@ -86,7 +96,7 @@ public class Variable {
         }
     }
 
-    private void validateMaxValue(Float maxValue) throws IllegalAccessException{
+    private void validateMaxValue(Float maxValue) throws IllegalAccessException {
         if (maxValue == null) return;
 
         if (maxValue < this.getValue()) {
@@ -95,6 +105,12 @@ public class Variable {
 
         if ((this.getMinValue() != null) && (this.getMinValue() > maxValue)) {
             throw new IllegalAccessException("Max Value (" + maxValue + ") cannot be smaller than current Min Value (" + this.getMinValue() + ")");
+        }
+    }
+
+    private void frozenCheck() throws IllegalAccessException {
+        if (isFrozen == true) {
+            throw new IllegalAccessException("Variable " + name + " is frozen and cannot be modified");
         }
     }
 
